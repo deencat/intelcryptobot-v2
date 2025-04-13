@@ -1,11 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// Skip WebKit tests for now
 test.describe('Dashboard Components', () => {
-  test.beforeEach(async ({ page, browserName }) => {
-    // Skip WebKit tests as they're unstable
-    test.skip(browserName === 'webkit', 'WebKit tests are currently unstable');
-    
+  test.beforeEach(async ({ page }) => {
     // Navigate to the dashboard page
     await page.goto('/dashboard');
     // Wait for dashboard to be fully loaded

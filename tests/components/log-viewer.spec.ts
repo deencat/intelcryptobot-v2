@@ -1,11 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-// Skip WebKit tests for now
 test.describe('Log Viewer Component', () => {
-  test.beforeEach(async ({ page, browserName }) => {
-    // Skip WebKit tests as they're unstable
-    test.skip(browserName === 'webkit', 'WebKit tests are currently unstable');
-    
+  test.beforeEach(async ({ page }) => {
     // Navigate to the logs page
     await page.goto('/logs');
     // Wait for page to be fully loaded
