@@ -1,0 +1,85 @@
+# IntelCryptoBot - Project Management Document
+
+## Project Overview
+This document tracks the development of IntelCryptoBot, an intelligent crypto trading bot with AI-powered analysis, reinforcement learning strategies, and a comprehensive UI dashboard for monitoring trading activities.
+
+## Current Development Phase
+- Project is in UI Prototyping Mode
+- Focus on developing frontend components without backend integration
+- Using dummy JSON data for representation
+- Implementing navigation between UI components
+
+## Task Management Instructions
+- Tasks are tagged as Done, ToDo, or Backlog
+- Tasks are prioritized by their order in the associated list
+- This document should be kept up-to-date after each development iteration
+
+## Completed Tasks
+Tasks are ordered chronologically from top to bottom.
+
+- Initial project planning and documentation
+- Requirements specification document creation
+- UI design document creation
+- Product requirements document creation
+- Setup Next.js project structure with required dependencies
+- Create basic UI layout and navigation components
+- Implement main navigation bar with Dashboard, Logs, and Settings options
+- Create mock data for dashboard components
+- Implement Dashboard main view with system status overview
+- Design and implement KPI display components
+- Create Alerts Panel component
+- Implement Active Positions widget with mock data
+- Implement Risk Metrics widget with dummy values
+- Create placeholder pages for Logs and Settings
+- Design and implement custom charts for performance visualization
+- Implement widget-based modular system for dashboard (collapsible/expandable widgets)
+
+## Pending Tasks (High Priority)
+Tasks are prioritized by their order in the associated list.
+
+1. Design and create Log Viewer component with filtering
+2. Implement detailed Settings/Configuration area with form controls
+3. Add responsive design for optimal desktop usage
+4. Create comprehensive Playwright tests for UI components
+5. Fix any accessibility issues in UI components
+
+## Backlog Tasks
+Tasks are prioritized by their order in the associated list.
+
+1. Implement dark/light theme support
+2. Add user preference storage for dashboard widget arrangement
+3. Create more detailed performance visualization components
+4. Implement simple notifications system
+5. Add timeframe selection capabilities for performance charts
+6. Design and implement drill-down functionality from KPIs to detailed views
+7. Create demo mode with automated data simulation
+8. Implement internationalization support
+9. Add keyboard shortcuts for power users
+10. Create comprehensive user documentation
+11. Design more advanced widget layouts and customization options
+12. Implement advanced filtering for log viewer
+
+## Technical Approach
+- Frontend: React, Next.js, Tailwind CSS, Shadcn/ui
+- Charts: Recharts
+- Authentication: Clerk Auth (to be implemented)
+- Testing: Playwright (to be implemented)
+- Deployment: Vercel
+- Data: Mock JSON files to simulate real backend responses
+
+## Development Guidelines
+- Create components with proper TypeScript typing
+- Follow existing code style and conventions
+- Make all components responsive within desktop parameters
+- Ensure all UI elements are accessible
+- Add comprehensive Playwright tests for each new feature
+- Terminate lingering Playwright report server processes before running tests
+- Fix problems reported in the IDE problem window immediately
+- Keep the project management document updated
+
+## Next Steps
+1. Create detailed log viewer component with filtering options
+2. Design and implement Settings forms and controls
+3. Ensure responsive design for desktop usage
+4. Set up Playwright for testing UI components
+5. Perform accessibility audit and fix any issues
