@@ -44,40 +44,13 @@ export function PerformanceChart() {
 
   const currentConfig = chartConfig[chartType];
 
-  const chartButtons = (
-    <div className="flex space-x-2">
-      <button
-        className={`px-2 py-1 text-xs rounded-md ${
-          chartType === "equity"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
-        }`}
-        onClick={() => setChartType("equity")}
-      >
-        Equity
-      </button>
-      <button
-        className={`px-2 py-1 text-xs rounded-md ${
-          chartType === "pnl"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
-        }`}
-        onClick={() => setChartType("pnl")}
-      >
-        P&L
-      </button>
-      <button
-        className={`px-2 py-1 text-xs rounded-md ${
-          chartType === "drawdown"
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-muted-foreground"
-        }`}
-        onClick={() => setChartType("drawdown")}
-      >
-        Drawdown
-      </button>
-    </div>
-  );
+  const getButtonClass = (type: ChartType) => {
+    return `px-2 py-1 text-xs rounded-md ${
+      chartType === type
+        ? "bg-primary text-primary-foreground"
+        : "bg-muted text-muted-foreground"
+    }`;
+  };
 
   return (
     <CollapsibleWidget
@@ -85,7 +58,26 @@ export function PerformanceChart() {
       className="col-span-full"
     >
       <div className="flex justify-end mb-2">
-        {chartButtons}
+        <div className="flex space-x-2">
+          <button
+            className={getButtonClass("equity")}
+            onClick={() => setChartType("equity")}
+          >
+            Equity
+          </button>
+          <button
+            className={getButtonClass("pnl")}
+            onClick={() => setChartType("pnl")}
+          >
+            P&L
+          </button>
+          <button
+            className={getButtonClass("drawdown")}
+            onClick={() => setChartType("drawdown")}
+          >
+            Drawdown
+          </button>
+        </div>
       </div>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
