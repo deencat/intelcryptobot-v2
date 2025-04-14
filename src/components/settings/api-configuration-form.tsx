@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { useRouter } from 'next/navigation'
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
 import { toast } from "sonner"
+import { freqtradeService } from "@/services/freqtradeService"
 
 const apiFormSchema = z.object({
   brokerApiKey: z.string().min(10, {
@@ -30,20 +32,37 @@ const apiFormSchema = z.object({
     message: "API key must be at least 10 characters.",
   }),
   isTestnet: z.boolean().default(true),
+  useFreqtrade: z.boolean().default(false),
+  freqtradeUrl: z.string().optional(),
+  freqtradeUsername: z.string().optional(),
+  freqtradePassword: z.string().optional(),
 })
 
 type ApiFormValues = z.infer<typeof apiFormSchema>
 
 // This simulates saved data
-const defaultValues: ApiFormValues = {
+const defaultValues: Partial<ApiFormValues> = {
   brokerApiKey: "xxxxxxxxxxxxxxxxxxxxxxxxx",
   brokerSecretKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   deepseekApiKey: "xxxxxxxxxxxxxxxxxxxxxxxxx",
   isTestnet: true,
+  useFreqtrade: true,
+  freqtradeUrl: "http://localhost:8080/api/v1",
+  freqtradeUsername: "freqtrader",
+  freqtradePassword: "cA8mn49B@T",
+}
+
+// Mock saved settings for Freqtrade - would be stored in a DB or localStorage in a real app
+let savedFreqtradeSettings = {
+  url: "http://localhost:8080/api/v1",
+  username: "freqtrader",
+  password: "cA8mn49B@T",
+  enabled: true
 }
 
 export function ApiConfigurationForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const form = useForm<ApiFormValues>({
     resolver: zodResolver(apiFormSchema),
@@ -53,12 +72,35 @@ export function ApiConfigurationForm() {
   function onSubmit(data: ApiFormValues) {
     setIsLoading(true)
     
-    // Simulate API request
-    setTimeout(() => {
-      console.log(data)
-      toast.success("API settings updated successfully")
-      setIsLoading(false)
-    }, 1000)
+    // Save Freqtrade settings
+    const freqtradeChanged = 
+      data.useFreqtrade !== savedFreqtradeSettings.enabled ||
+      data.freqtradeUrl !== savedFreqtradeSettings.url ||
+      data.freqtradeUsername !== savedFreqtradeSettings.username ||
+      data.freqtradePassword !== savedFreqtradeSettings.password;
+    
+    if (freqtradeChanged) {
+      savedFreqtradeSettings = {
+        url: data.freqtradeUrl || "",
+        username: data.freqtradeUsername || "",
+        password: data.freqtradePassword || "",
+        enabled: data.useFreqtrade || false
+      };
+      
+      // In a real app, we would update environment variables or a settings store
+      // For now, we'll just reload the page to reinitialize the freqtradeService
+      setTimeout(() => {
+        toast.success("API settings updated successfully");
+        toast.info("Reconnecting to Freqtrade...");
+        router.refresh(); // Refresh the page to reinitialize the service
+      }, 1000);
+    } else {
+      // Simulate API request
+      setTimeout(() => {
+        toast.success("API settings updated successfully");
+        setIsLoading(false);
+      }, 1000);
+    }
   }
 
   return (
@@ -135,6 +177,82 @@ export function ApiConfigurationForm() {
             </FormItem>
           )}
         />
+        
+        <FormField
+          control={form.control}
+          name="useFreqtrade"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Use Freqtrade</FormLabel>
+                <FormDescription>
+                  Connect to Freqtrade for advanced trading features
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+        
+        {form.watch("useFreqtrade") && (
+          <>
+            <FormField
+              control={form.control}
+              name="freqtradeUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Freqtrade API URL</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Freqtrade API URL" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormDescription>
+                    The URL to your Freqtrade API (e.g., http://localhost:8080/api/v1)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="freqtradeUsername"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Freqtrade Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Freqtrade username" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormDescription>
+                    Username for Freqtrade API authentication
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="freqtradePassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Freqtrade Password</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Freqtrade password" type="password" {...field} value={field.value || ''} />
+                  </FormControl>
+                  <FormDescription>
+                    Password for Freqtrade API authentication
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
         
         <Button type="submit" disabled={isLoading}>
           {isLoading ? "Saving..." : "Save API Settings"}

@@ -4,6 +4,7 @@ import { AlertsPanel } from "@/components/dashboard/alerts-panel";
 import { ActivePositions } from "@/components/dashboard/active-positions";
 import { RiskMetrics } from "@/components/dashboard/risk-metrics";
 import { PerformanceChart } from "@/components/dashboard/performance-chart";
+import { FreqtradeStatus } from "@/components/dashboard/freqtrade-status";
 
 export default function DashboardPage() {
   return (
@@ -22,6 +23,7 @@ export default function DashboardPage() {
         
         <div className="space-y-6">
           <SystemStatus />
+          <FreqtradeStatus />
           <AlertsPanel />
         </div>
       </div>

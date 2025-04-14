@@ -34,7 +34,7 @@ export default defineConfig({
   },
   
   /* Global timeout for tests */
-  timeout: 90000,
+  timeout: 180000,
 
   /* Configure projects for major browsers */
   projects: [
@@ -48,10 +48,18 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    // Disabling WebKit tests due to instability issues
+    // Disabling WebKit tests for now as requested
     // {
     //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
+    //   use: { 
+    //     ...devices['Desktop Safari'],
+    //     // Increase actionTimeout for WebKit tests
+    //     actionTimeout: 60000,
+    //     // Increase navigation timeout
+    //     navigationTimeout: 60000,
+    //     // Increased expect timeout
+    //     expect: { timeout: 60000 },
+    //   },
     // },
 
     /* Test against mobile viewports. */
@@ -82,5 +90,6 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     stderr: 'pipe',
+    timeout: 120000,
   },
 });

@@ -46,3 +46,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Add local-build directory to gitignore
+local-build/

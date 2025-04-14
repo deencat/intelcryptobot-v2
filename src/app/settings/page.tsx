@@ -3,6 +3,7 @@ import { ApiConfigurationForm } from "@/components/settings/api-configuration-fo
 import { BotConfigurationForm } from "@/components/settings/bot-configuration-form";
 import { AlertPreferencesForm } from "@/components/settings/alert-preferences-form";
 import { UiPreferencesForm } from "@/components/settings/ui-preferences-form";
+import { FreqtradeConfigForm } from "@/components/settings/freqtrade-config-form";
 
 export default function SettingsPage() {
   return (
@@ -28,6 +29,15 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <BotConfigurationForm />
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle>Freqtrade Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FreqtradeConfigForm />
           </CardContent>
         </Card>
         
