@@ -1,52 +1,51 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiConfigurationForm } from "@/components/settings/api-configuration-form";
+import { BotConfigurationForm } from "@/components/settings/bot-configuration-form";
+import { AlertPreferencesForm } from "@/components/settings/alert-preferences-form";
+import { UiPreferencesForm } from "@/components/settings/ui-preferences-form";
 
 export default function SettingsPage() {
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Settings</h1>
+      <div className="flex flex-col">
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-muted-foreground">Configure your trading bot and preferences</p>
+      </div>
       
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1">
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle>API Configuration</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              This is a placeholder for API settings. In the actual implementation, this would allow configuration of API keys for Broker, DeepSeek, etc.
-            </p>
+            <ApiConfigurationForm />
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle>Bot Configuration</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              This is a placeholder for bot configuration. In the actual implementation, this would allow configuration of trading parameters, risk limits, etc.
-            </p>
+            <BotConfigurationForm />
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle>Alert Preferences</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              This is a placeholder for alert preferences. In the actual implementation, this would allow configuration of alert settings.
-            </p>
+            <AlertPreferencesForm />
           </CardContent>
         </Card>
         
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-3">
             <CardTitle>UI Preferences</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground">
-              This is a placeholder for UI preferences. In the actual implementation, this would allow customization of dashboard widgets and layout.
-            </p>
+            <UiPreferencesForm />
           </CardContent>
         </Card>
       </div>

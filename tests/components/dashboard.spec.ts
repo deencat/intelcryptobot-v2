@@ -82,39 +82,35 @@ test.describe('Dashboard Components', () => {
     await expect(page.getByText('Position size exceeds risk limit')).toBeVisible();
   });
 
-  test.skip('should collapse and expand widgets', async ({ page }) => {
-    // Skipping this test until UI is stabilized
+  test('should collapse and expand widgets', async ({ page }) => {
     // Target a specific widget - Active Positions
     const positionsWidget = page.locator('[data-testid="widget-active-positions"]');
+    
+    // Wait for widget to be fully loaded and visible
+    await expect(positionsWidget).toBeVisible({ timeout: 45000 });
     
     // Verify widget content is initially visible
     const widgetContent = positionsWidget.locator('[data-testid="widget-content"]');
     await expect(widgetContent).toBeVisible({ timeout: 45000 });
     
-    // Attempt to find and click the collapse button, but handle potential errors
-    try {
-      // Click the collapse button
-      await positionsWidget.locator('[data-testid="collapse-button"]').click();
-      
-      // Wait a moment for any state change
-      await page.waitForTimeout(1000);
-      
-      // Click the area where the expand button should be (based on the widget header, which is always visible)
-      await positionsWidget.locator('div[class*="CardHeader"]').click();
-      
-      // Wait a moment for any state change
-      await page.waitForTimeout(1000);
-      
-      // Verify the widget content is eventually visible again
-      await expect(widgetContent).toBeVisible({ timeout: 45000 });
-    } catch (e) {
-      // If the test fails due to element not found or similar, we'll at least verify that the widget itself exists
-      await expect(positionsWidget).toBeVisible({ timeout: 45000 });
-    }
+    // Click the collapse button
+    const collapseButton = positionsWidget.locator('[data-testid="collapse-button"]');
+    await expect(collapseButton).toBeVisible({ timeout: 5000 });
+    await collapseButton.click();
+    
+    // Verify widget content is no longer visible
+    await expect(widgetContent).not.toBeVisible({ timeout: 5000 });
+    
+    // Click the expand button
+    const expandButton = positionsWidget.locator('[data-testid="expand-button"]');
+    await expect(expandButton).toBeVisible({ timeout: 5000 });
+    await expandButton.click();
+    
+    // Verify widget content is visible again
+    await expect(widgetContent).toBeVisible({ timeout: 5000 });
   });
 
-  test.skip('should navigate to other pages', async ({ page }) => {
-    // Skipping this test until navigation is stabilized
+  test('should navigate to other pages', async ({ page }) => {
     // We need to wait for all initial rendering to complete
     await page.waitForLoadState('networkidle');
     
@@ -122,28 +118,28 @@ test.describe('Dashboard Components', () => {
     await expect(page.getByRole('link', { name: 'Logs' })).toBeVisible({ timeout: 45000 });
     await expect(page.getByRole('link', { name: 'Settings' })).toBeVisible();
     
-    // Navigate to Logs page - use more stable approach
+    // Navigate to Logs page
     const logsLink = page.getByRole('link', { name: 'Logs' });
     await logsLink.click();
     
-    // Wait for navigation to complete
-    await page.waitForURL('/logs', { timeout: 60000 });
+    // Wait for logs page to load
+    await page.waitForURL('**/logs', { timeout: 60000 });
     await expect(page.getByRole('heading', { name: 'System Logs' })).toBeVisible({ timeout: 60000 });
     
     // Navigate to Settings page
     const settingsLink = page.getByRole('link', { name: 'Settings' });
     await settingsLink.click();
     
-    // Wait for navigation to complete
-    await page.waitForURL('/settings', { timeout: 60000 });
+    // Wait for settings page to load
+    await page.waitForURL('**/settings', { timeout: 60000 });
     await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible({ timeout: 60000 });
     
     // Navigate back to Dashboard
     const dashboardLink = page.getByRole('link', { name: 'Dashboard' });
     await dashboardLink.click();
     
-    // Wait for navigation to complete
-    await page.waitForURL('/dashboard', { timeout: 60000 });
+    // Wait for dashboard page to load
+    await page.waitForURL('**/dashboard', { timeout: 60000 });
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 60000 });
   });
 }); 
