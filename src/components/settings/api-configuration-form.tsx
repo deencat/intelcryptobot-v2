@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useState } from "react"
 import { toast } from "sonner"
-import { freqtradeService } from "@/services/freqtradeService"
+import { freqtradeConfig } from "@/lib/env"
 
 const apiFormSchema = z.object({
   brokerApiKey: z.string().min(10, {
@@ -47,16 +47,16 @@ const defaultValues: Partial<ApiFormValues> = {
   deepseekApiKey: "xxxxxxxxxxxxxxxxxxxxxxxxx",
   isTestnet: true,
   useFreqtrade: true,
-  freqtradeUrl: "http://localhost:8080/api/v1",
-  freqtradeUsername: "freqtrader",
-  freqtradePassword: "cA8mn49B@T",
+  freqtradeUrl: freqtradeConfig.apiUrl,
+  freqtradeUsername: freqtradeConfig.username,
+  freqtradePassword: freqtradeConfig.password,
 }
 
 // Mock saved settings for Freqtrade - would be stored in a DB or localStorage in a real app
 let savedFreqtradeSettings = {
-  url: "http://localhost:8080/api/v1",
-  username: "freqtrader",
-  password: "cA8mn49B@T",
+  url: freqtradeConfig.apiUrl,
+  username: freqtradeConfig.username,
+  password: freqtradeConfig.password,
   enabled: true
 }
 

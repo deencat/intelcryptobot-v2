@@ -47,13 +47,23 @@ Tasks are ordered chronologically from top to bottom.
   - Added npm scripts for safer test execution
   - Disabled problematic WebKit tests to improve reliability
   - Simplified complex tests to ensure consistent results
+- Implemented Freqtrade integration for trading bot control
+  - Created Freqtrade connection component with status display
+  - Added connection testing functionality with detailed error handling
+  - Implemented start/stop bot controls
+  - Added robust error handling for API communication
+  - Fixed CORS and authentication issues with external API endpoints
+  - Created comprehensive tests for connection reliability
+  - Updated component to use environment variables for configuration
 
 ## Pending Tasks (High Priority)
 Tasks are prioritized by their order in the associated list.
 
-1. Implement detailed Settings/Configuration area with form controls
-2. Add responsive design for optimal desktop usage
-3. Perform accessibility audit and fix any issues
+1. Complete detailed Settings/Configuration area with form controls
+2. Implement better retry and reconnection logic for API endpoints
+3. Add responsive design for optimal desktop usage
+4. Perform accessibility audit and fix any issues
+5. Fix remaining linting issues throughout the application
 
 ## Backlog Tasks
 Tasks are prioritized by their order in the associated list.
@@ -75,9 +85,10 @@ Tasks are prioritized by their order in the associated list.
 - Frontend: React, Next.js, Tailwind CSS, Shadcn/ui
 - Charts: Recharts
 - Authentication: Clerk Auth (to be implemented)
+- API Integration: Freqtrade API via environment configuration
 - Testing: Playwright
 - Deployment: Vercel
-- Data: Mock JSON files to simulate real backend responses
+- Data: Combination of mock data and real API responses
 
 ## Development Guidelines
 - Create components with proper TypeScript typing
@@ -90,6 +101,8 @@ Tasks are prioritized by their order in the associated list.
 - Keep the project management document updated
 
 ## Next Steps
-1. Implement detailed Settings/Configuration area with form controls
-2. Ensure responsive design for desktop usage
-3. Perform accessibility audit and fix any issues
+1. Complete the Settings/Configuration area integration with Freqtrade API
+2. Add connection status persistence and auto-reconnect functionality
+3. Fix remaining linting issues throughout the application
+4. Ensure responsive design for desktop usage
+5. Perform accessibility audit and fix any issues

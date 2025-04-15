@@ -1,40 +1,56 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, Play, Pause, Link } from "lucide-react";
-import { freqtradeService } from "@/services/freqtradeService";
 import { CollapsibleWidget } from "./collapsible-widget";
 import { toast } from "sonner";
+import { freqtradeConfig, devConfig } from "@/lib/env"; // Import the environment utility
+
+// Define types for the API responses
+interface FreqtradeStatus {
+  status: string;
+  version: string;
+  strategy: string;
+  dry_run: boolean;
+  trading_mode: string;
+  state: string;
+  timeframe: string;
+  exchange: string;
+  balance: number;
+  profit_total: number;
+  profit_ratio: number;
+}
+
+type ConnectionStatus = 'connected' | 'disconnected' | 'checking';
 
 type FreqtradeStatusProps = {
   className?: string;
 };
 
 export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<FreqtradeStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'checking'>('disconnected');
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
 
-  const testConnection = async () => {
+  const testConnection = useCallback(async () => {
     try {
       setConnectionStatus('checking');
       setLoading(true);
       setError(null);
       console.log('Testing Freqtrade connection...');
       
-      // Use environment variable for API URL - now includes the full path with /api/v1
-      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      // Use the freqtradeConfig
+      const apiUrl = freqtradeConfig.apiUrl;
       console.log('Using API URL:', apiUrl);
-      console.log('Username:', process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader');
+      console.log('Username:', freqtradeConfig.username);
       // Don't log the actual password, just indicate if it's being used
       console.log('Using password from ENV?', !!process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD);
       
       // Generate auth header
-      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
       const base64Auth = btoa(authString);
       console.log('Auth string length:', authString.length);
       console.log('Base64 auth string:', base64Auth);
@@ -111,7 +127,7 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const fetchStatus = async () => {
     if (connectionStatus !== 'connected') {
@@ -122,11 +138,11 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       setLoading(true);
       setError(null);
       
-      // Use environment variable for API URL
-      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      // Use the freqtradeConfig
+      const apiUrl = freqtradeConfig.apiUrl;
       
       // Generate auth header
-      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
       const base64Auth = btoa(authString);
       
       // Ensure we don't double-append paths
@@ -207,11 +223,11 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     try {
       setLoading(true);
       
-      // Use environment variable for API URL
-      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      // Use the freqtradeConfig
+      const apiUrl = freqtradeConfig.apiUrl;
       
       // Generate auth header
-      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
       const base64Auth = btoa(authString);
       
       // Ensure we don't double-append paths
@@ -254,11 +270,11 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     try {
       setLoading(true);
       
-      // Use environment variable for API URL
-      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      // Use the freqtradeConfig
+      const apiUrl = freqtradeConfig.apiUrl;
       
       // Generate auth header
-      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
       const base64Auth = btoa(authString);
       
       // Ensure we don't double-append paths
@@ -297,16 +313,33 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     }
   };
 
-  // Only attempt auto-connection on component mount if in dev environment
+  // Auto-connect based on environment settings
   useEffect(() => {
-    const isDev = process.env.NODE_ENV === 'development';
-    if (isDev) {
+    const shouldAutoConnect = devConfig.isDevelopment || freqtradeConfig.autoConnect;
+    if (shouldAutoConnect) {
       testConnection();
     }
-  }, []);
+  }, [testConnection]);
+
+  // Attempt to fetch status immediately if we're already in a connected state
+  // This helps when the widget is collapsed and then expanded
+  useEffect(() => {
+    if (connectionStatus === 'connected' && !loading && !status) {
+      fetchStatus();
+    }
+  }, [connectionStatus, loading, status]);
 
   return (
-    <CollapsibleWidget title="Freqtrade Status" className={className}>
+    <CollapsibleWidget 
+      title="Freqtrade Status" 
+      className={className} 
+      defaultCollapsed={true}
+      onExpandChanged={(expanded) => {
+        if (expanded && connectionStatus === 'connected' && !loading) {
+          fetchStatus();
+        }
+      }}
+    >
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
