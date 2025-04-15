@@ -5,18 +5,24 @@ Script to check the Hyperliquid connection URL in Freqtrade
 
 import json
 import requests
+import os
 from requests.auth import HTTPBasicAuth
+import sys
 
-# Freqtrade API credentials
-auth = HTTPBasicAuth('freqtrader', 'cA8mn49B@T')
-base_url = 'http://localhost:8080/api/v1'
-
-def check_hyperliquid_url():
-    print("Checking Hyperliquid connection URL...")
+def check_hyperliquid_status():
+    print("Checking Hyperliquid integration with Freqtrade...")
     
+    # Get API URL from environment or use default
+    base_url = os.environ.get('NEXT_PUBLIC_FREQTRADE_API_URL', 'http://localhost:8080/api/v1')
+    username = 'freqtrader'
+    password = 'cA8mn49B@T'
+    
+    print(f"Using API URL: {base_url}")
+    
+    # Check Freqtrade connection
     try:
         # Get exchange markets to see the URLs being used
-        response = requests.get(f'{base_url}/show_config', auth=auth)
+        response = requests.get(f'{base_url}/show_config', auth=HTTPBasicAuth(username, password))
         config = response.json()
         
         # Extract exchange information
@@ -29,7 +35,7 @@ def check_hyperliquid_url():
         
         # Check ping endpoint to get logs with connection info
         print("\nGetting ping response to check logs...")
-        ping_response = requests.get(f'{base_url}/ping', auth=auth)
+        ping_response = requests.get(f'{base_url}/ping', auth=HTTPBasicAuth(username, password))
         print(f"Ping status: {ping_response.status_code}")
         print(f"Ping response: {ping_response.json()}")
         
@@ -40,7 +46,7 @@ def check_hyperliquid_url():
         return None
 
 if __name__ == "__main__":
-    config = check_hyperliquid_url()
+    config = check_hyperliquid_status()
     
     if config:
         print("\nTo check the actual URL, we need to look at the Freqtrade logs:")

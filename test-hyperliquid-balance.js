@@ -4,31 +4,26 @@ const axios = require('axios');
 async function testHyperliquidBalance() {
   console.log('Testing Hyperliquid balance via Freqtrade...');
   
-  const auth = {
-    username: 'freqtrader',
-    password: 'cA8mn49B@T'
-  };
-  
-  // Helper function to make API requests with better error handling
-  async function makeApiRequest(endpoint, description) {
-    console.log(`\n${description}...`);
+  const callFreqtradeApi = async (endpoint) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/v1/${endpoint}`, { auth });
-      console.log('✅ Success!');
+      const auth = {
+        username: 'freqtrader',
+        password: 'cA8mn49B@T'
+      };
+      
+      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      const response = await axios.get(`${apiUrl}/${endpoint}`, { auth });
+      
       return response.data;
     } catch (error) {
-      console.log(`❌ Failed: ${error.message}`);
-      if (error.response) {
-        console.log(`Status: ${error.response.status}`);
-        console.log('Response data:', error.response.data);
-      }
+      console.error(`Error calling Freqtrade API (${endpoint}):`, error.message);
       return null;
     }
-  }
+  };
   
   try {
     // Get Freqtrade configuration
-    const config = await makeApiRequest('show_config', 'Fetching Freqtrade configuration');
+    const config = await callFreqtradeApi('show_config');
     
     if (config) {
       console.log('\nExchange configuration:');
@@ -42,7 +37,7 @@ async function testHyperliquidBalance() {
         console.log('\n✅ Confirmed connected to Hyperliquid exchange');
         
         // Get balance information
-        const balance = await makeApiRequest('balance', 'Fetching balance information');
+        const balance = await callFreqtradeApi('balance');
         
         if (balance) {
           console.log('\nBalance information:');
@@ -64,7 +59,7 @@ async function testHyperliquidBalance() {
           }
           
           // Try to get whitelist pairs 
-          const whitelist = await makeApiRequest('whitelist', 'Fetching available trading pairs');
+          const whitelist = await callFreqtradeApi('whitelist');
           
           if (whitelist && whitelist.whitelist) {
             console.log('\nAvailable trading pairs:');
@@ -75,7 +70,7 @@ async function testHyperliquidBalance() {
           }
           
           // Try to get current open trades
-          const openTrades = await makeApiRequest('status', 'Fetching open trades');
+          const openTrades = await callFreqtradeApi('status');
           if (openTrades && openTrades.length > 0) {
             console.log('\nCurrent open trades:');
             console.log('-------------------');
@@ -87,7 +82,7 @@ async function testHyperliquidBalance() {
           }
           
           // Get specific market data for BTC/USDC
-          const marketData = await makeApiRequest('pair_candles?pair=BTC/USDC&timeframe=1h&limit=1', 'Fetching BTC/USDC market data');
+          const marketData = await callFreqtradeApi('pair_candles?pair=BTC/USDC&timeframe=1h&limit=1');
           if (marketData) {
             console.log('\nLatest BTC/USDC market data:');
             console.log('--------------------------');

@@ -26,20 +26,55 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       setError(null);
       console.log('Testing Freqtrade connection...');
       
+      // Use environment variable for API URL - now includes the full path with /api/v1
+      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      console.log('Using API URL:', apiUrl);
+      console.log('Username:', process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader');
+      // Don't log the actual password, just indicate if it's being used
+      console.log('Using password from ENV?', !!process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD);
+      
+      // Generate auth header
+      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const base64Auth = btoa(authString);
+      console.log('Auth string length:', authString.length);
+      console.log('Base64 auth string:', base64Auth);
+      
+      // Ensure we don't double-append /api/v1
+      const pingUrl = apiUrl.endsWith('/ping') ? apiUrl : 
+                     apiUrl.endsWith('/') ? `${apiUrl}ping` : `${apiUrl}/ping`;
+      console.log('Making request to:', pingUrl);
+      
       // Use direct fetch for testing connection to the real server
-      const response = await fetch('http://localhost:8080/api/v1/ping', {
+      const response = await fetch(pingUrl, {
         method: 'GET',
         headers: {
-          'Authorization': 'Basic ' + btoa('freqtrader:cA8mn49B@T')
-        }
+          'Authorization': 'Basic ' + base64Auth,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
+      
+      console.log('Response status:', response.status);
       
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
       }
       
-      const data = await response.json();
-      console.log('Connection test result:', data);
+      // Debug the raw response
+      const rawText = await response.text();
+      console.log('Raw response:', rawText);
+      
+      let data;
+      try {
+        data = JSON.parse(rawText);
+        console.log('Parsed JSON:', data);
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Failed to parse JSON response: ${rawText.substring(0, 100)}...`);
+      }
       
       if (data && data.status === 'pong') {
         setConnectionStatus('connected');
@@ -60,7 +95,8 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       let errorMessage = "Failed to connect to Freqtrade";
       
       if (err.message.includes('Failed to fetch')) {
-        errorMessage = "Cannot reach Freqtrade server. Make sure it's running at http://localhost:8080";
+        const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+        errorMessage = `Cannot reach Freqtrade server. Make sure it's running at ${apiUrl}`;
       } else if (err.message.includes('status: 401')) {
         errorMessage = "Authentication failed. Check your username and password.";
       } else if (err.message.includes('status: 404')) {
@@ -86,12 +122,29 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       setLoading(true);
       setError(null);
       
+      // Use environment variable for API URL
+      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      
+      // Generate auth header
+      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const base64Auth = btoa(authString);
+      
+      // Ensure we don't double-append paths
+      const configUrl = apiUrl.endsWith('/show_config') ? apiUrl : 
+                       apiUrl.endsWith('/') ? `${apiUrl}show_config` : `${apiUrl}/show_config`;
+      console.log('Making config request to:', configUrl);
+      
       // Use direct fetch for more reliable connection
-      const configResponse = await fetch('http://localhost:8080/api/v1/show_config', {
+      const configResponse = await fetch(configUrl, {
         method: 'GET',
         headers: {
-          'Authorization': 'Basic ' + btoa('freqtrader:cA8mn49B@T')
-        }
+          'Authorization': 'Basic ' + base64Auth,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
       
       if (!configResponse.ok) {
@@ -100,11 +153,21 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       
       const config = await configResponse.json();
       
-      const balanceResponse = await fetch('http://localhost:8080/api/v1/balance', {
+      // Ensure we don't double-append paths
+      const balanceUrl = apiUrl.endsWith('/balance') ? apiUrl : 
+                        apiUrl.endsWith('/') ? `${apiUrl}balance` : `${apiUrl}/balance`;
+      console.log('Making balance request to:', balanceUrl);
+      
+      const balanceResponse = await fetch(balanceUrl, {
         method: 'GET',
         headers: {
-          'Authorization': 'Basic ' + btoa('freqtrader:cA8mn49B@T')
-        }
+          'Authorization': 'Basic ' + base64Auth,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
       
       if (!balanceResponse.ok) {
@@ -144,12 +207,29 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     try {
       setLoading(true);
       
-      const response = await fetch('http://localhost:8080/api/v1/start', {
+      // Use environment variable for API URL
+      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      
+      // Generate auth header
+      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const base64Auth = btoa(authString);
+      
+      // Ensure we don't double-append paths
+      const startUrl = apiUrl.endsWith('/start') ? apiUrl : 
+                      apiUrl.endsWith('/') ? `${apiUrl}start` : `${apiUrl}/start`;
+      console.log('Making start request to:', startUrl);
+      
+      const response = await fetch(startUrl, {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa('freqtrader:cA8mn49B@T'),
-          'Content-Type': 'application/json'
-        }
+          'Authorization': 'Basic ' + base64Auth,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -174,12 +254,29 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     try {
       setLoading(true);
       
-      const response = await fetch('http://localhost:8080/api/v1/stop', {
+      // Use environment variable for API URL
+      const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+      
+      // Generate auth header
+      const authString = `${process.env.NEXT_PUBLIC_FREQTRADE_USERNAME || 'freqtrader'}:${process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'}`;
+      const base64Auth = btoa(authString);
+      
+      // Ensure we don't double-append paths
+      const stopUrl = apiUrl.endsWith('/stop') ? apiUrl : 
+                     apiUrl.endsWith('/') ? `${apiUrl}stop` : `${apiUrl}/stop`;
+      console.log('Making stop request to:', stopUrl);
+      
+      const response = await fetch(stopUrl, {
         method: 'POST',
         headers: {
-          'Authorization': 'Basic ' + btoa('freqtrader:cA8mn49B@T'),
-          'Content-Type': 'application/json'
-        }
+          'Authorization': 'Basic ' + base64Auth,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
       });
       
       if (!response.ok) {
@@ -253,11 +350,11 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
         )}
         
         {error && (
-          <div className="p-3 bg-destructive/10 text-destructive rounded-md text-sm">
-            <p className="font-semibold">Connection Error:</p>
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+            <p className="font-medium">Connection Error:</p>
             <p>{error}</p>
-            <p className="text-xs mt-1">
-              Make sure Freqtrade is running and accessible at: http://localhost:8080
+            <p className="text-sm mt-2">
+              Make sure Freqtrade is running and accessible at: {process.env.NEXT_PUBLIC_FREQTRADE_API_URL || "http://localhost:8080"}
             </p>
           </div>
         )}
