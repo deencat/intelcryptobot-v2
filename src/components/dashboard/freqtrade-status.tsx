@@ -26,7 +26,7 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       setError(null);
       console.log('Testing Freqtrade connection...');
       
-      // Use direct fetch for testing connection to bypass service
+      // Use direct fetch for testing connection to the real server
       const response = await fetch('http://localhost:8080/api/v1/ping', {
         method: 'GET',
         headers: {
@@ -55,8 +55,22 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     } catch (err: any) {
       console.error("Connection test error:", err);
       setConnectionStatus('disconnected');
-      setError(err.message || "Failed to connect to Freqtrade");
-      toast.error("Failed to connect to Freqtrade: " + (err.message || "Unknown error"));
+      
+      // Provide more specific error message
+      let errorMessage = "Failed to connect to Freqtrade";
+      
+      if (err.message.includes('Failed to fetch')) {
+        errorMessage = "Cannot reach Freqtrade server. Make sure it's running at http://localhost:8080";
+      } else if (err.message.includes('status: 401')) {
+        errorMessage = "Authentication failed. Check your username and password.";
+      } else if (err.message.includes('status: 404')) {
+        errorMessage = "API endpoint not found. Check your Freqtrade version.";
+      } else {
+        errorMessage += ": " + err.message;
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
       return false;
     } finally {
       setLoading(false);

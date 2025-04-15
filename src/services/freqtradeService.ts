@@ -136,7 +136,7 @@ const mockData = {
 
 class FreqtradeService {
   private client: AxiosInstance | null = null;
-  private isProduction: boolean = true;
+  private isProduction: boolean = true; // Set to true to connect to real server
 
   constructor() {
     // In production mode, initialize a real API client
@@ -152,6 +152,8 @@ class FreqtradeService {
           password: process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD || 'cA8mn49B@T'
         }
       });
+    } else {
+      console.log('Initializing Freqtrade API client in mock mode...');
     }
   }
 
