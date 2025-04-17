@@ -136,11 +136,11 @@ test.describe('Dashboard Components', () => {
   });
 
   test('should render KPI components', async ({ page }) => {
-    // Check for KPI components using existing selectors that are present in the app
-    await expect(page.locator('[data-testid="widget-kpi"]')).toBeVisible({ timeout: 60000 });
+    // Check for KPI components by looking for their text content instead of relying on data-testid
     await expect(page.getByText('Daily P&L').first()).toBeVisible({ timeout: 60000 });
     await expect(page.getByText('Total P&L').first()).toBeVisible({ timeout: 60000 });
     await expect(page.getByText('Account Equity').first()).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText('Drawdown').first()).toBeVisible({ timeout: 60000 });
   });
 
   test('should render performance charts', async ({ page }) => {
@@ -169,29 +169,29 @@ test.describe('Dashboard Components', () => {
   });
 
   test('should navigate to other pages', async ({ page }) => {
-    // Navigate to Trades page
-    const tradesLink = page.getByRole('link', { name: /Trades/i });
-    await expect(tradesLink).toBeVisible({ timeout: 60000 });
-    await tradesLink.click();
+    // Navigate to Logs page
+    const logsLink = page.getByRole('link', { name: /Logs/i });
+    await expect(logsLink).toBeVisible({ timeout: 60000 });
+    await logsLink.click();
     
     // Wait for URL to change and page to load
-    await page.waitForURL(/.*\/trades/, { timeout: 60000 });
+    await page.waitForURL(/.*\/logs/, { timeout: 60000 });
     await page.waitForLoadState('networkidle', { timeout: 60000 });
     
-    // Check that we're on the Trades page
-    await expect(page.getByRole('heading', { name: /Trades/i })).toBeVisible({ timeout: 60000 });
+    // Check that we're on the Logs page
+    await expect(page.getByRole('heading', { name: /Logs/i })).toBeVisible({ timeout: 60000 });
 
-    // Navigate to Analytics page
-    const analyticsLink = page.getByRole('link', { name: /Analytics/i });
-    await expect(analyticsLink).toBeVisible({ timeout: 60000 });
-    await analyticsLink.click();
+    // Navigate to Settings page
+    const settingsLink = page.getByRole('link', { name: /Settings/i });
+    await expect(settingsLink).toBeVisible({ timeout: 60000 });
+    await settingsLink.click();
     
     // Wait for URL to change and page to load
-    await page.waitForURL(/.*\/analytics/, { timeout: 60000 });
+    await page.waitForURL(/.*\/settings/, { timeout: 60000 });
     await page.waitForLoadState('networkidle', { timeout: 60000 });
     
-    // Check that we're on the Analytics page
-    await expect(page.getByRole('heading', { name: /Analytics/i })).toBeVisible({ timeout: 60000 });
+    // Check that we're on the Settings page
+    await expect(page.getByRole('heading', { name: /Settings/i })).toBeVisible({ timeout: 60000 });
 
     // Navigate back to Dashboard
     const dashboardLink = page.getByRole('link', { name: /Dashboard/i });

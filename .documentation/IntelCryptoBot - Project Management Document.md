@@ -55,6 +55,11 @@ Tasks are ordered chronologically from top to bottom.
   - Fixed CORS and authentication issues with external API endpoints
   - Created comprehensive tests for connection reliability
   - Updated component to use environment variables for configuration
+- Enhanced CollapsibleWidget component
+  - Added onExpandChanged callback for better integration with dynamic content components
+  - Created test suite for the enhanced widget functionality
+  - Implemented proper typing for callback functions
+  - Fixed Freqtrade Status widget integration to leverage the new callback
 
 ## Pending Tasks (High Priority)
 Tasks are prioritized by their order in the associated list.
@@ -101,8 +106,13 @@ Tasks are prioritized by their order in the associated list.
 - Keep the project management document updated
 
 ## Next Steps
-1. Complete the Settings/Configuration area integration with Freqtrade API
-2. Add connection status persistence and auto-reconnect functionality
-3. Fix remaining linting issues throughout the application
-4. Ensure responsive design for desktop usage
-5. Perform accessibility audit and fix any issues
+1. Refactor the Freqtrade status component to improve testability:
+   - Add more data-testid attributes for reliable selection
+   - Implement better error handling for network requests
+   - Separate connection logic from UI rendering for easier testing
+2. Complete the Settings/Configuration area integration with Freqtrade API
+3. Add connection status persistence and auto-reconnect functionality
+4. Fix remaining linting issues throughout the application
+5. Ensure responsive design for desktop usage
+6. Perform accessibility audit and fix any issues
+7. Update other dashboard widgets to leverage the new onExpandChanged callback for optimized data loading

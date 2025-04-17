@@ -47,8 +47,8 @@ test.describe('Settings Page', () => {
     // Check for common form elements
     await expect(page.locator('[data-slot="card-title"]').filter({ hasText: 'Bot Configuration' })).toBeVisible({ timeout: 10000 });
     
-    // Find select and inputs - they have predictable names or types
-    await expect(page.getByText('Trading Strategy')).toBeVisible({ timeout: 10000 });
+    // Find select and inputs - using more specific selectors to avoid ambiguity
+    await expect(page.locator('label').filter({ hasText: 'Trading Strategy' }).first()).toBeVisible({ timeout: 10000 });
     await expect(page.locator('input[type="number"]').nth(0)).toBeVisible({ timeout: 10000 });
     await expect(page.locator('input[type="number"]').nth(1)).toBeVisible({ timeout: 10000 });
     

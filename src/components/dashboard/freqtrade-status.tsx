@@ -35,101 +35,7 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('disconnected');
 
-  const testConnection = useCallback(async () => {
-    try {
-      setConnectionStatus('checking');
-      setLoading(true);
-      setError(null);
-      console.log('Testing Freqtrade connection...');
-      
-      // Use the freqtradeConfig
-      const apiUrl = freqtradeConfig.apiUrl;
-      console.log('Using API URL:', apiUrl);
-      console.log('Username:', freqtradeConfig.username);
-      // Don't log the actual password, just indicate if it's being used
-      console.log('Using password from ENV?', !!process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD);
-      
-      // Generate auth header
-      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
-      const base64Auth = btoa(authString);
-      console.log('Auth string length:', authString.length);
-      console.log('Base64 auth string:', base64Auth);
-      
-      // Ensure we don't double-append /api/v1
-      const pingUrl = apiUrl.endsWith('/ping') ? apiUrl : 
-                     apiUrl.endsWith('/') ? `${apiUrl}ping` : `${apiUrl}/ping`;
-      console.log('Making request to:', pingUrl);
-      
-      // Use direct fetch for testing connection to the real server
-      const response = await fetch(pingUrl, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Basic ' + base64Auth,
-          'Accept': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-        mode: 'cors',
-        credentials: 'include'
-      });
-      
-      console.log('Response status:', response.status);
-      
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
-      }
-      
-      // Debug the raw response
-      const rawText = await response.text();
-      console.log('Raw response:', rawText);
-      
-      let data;
-      try {
-        data = JSON.parse(rawText);
-        console.log('Parsed JSON:', data);
-      } catch (parseErr) {
-        console.error('JSON parse error:', parseErr);
-        throw new Error(`Failed to parse JSON response: ${rawText.substring(0, 100)}...`);
-      }
-      
-      if (data && data.status === 'pong') {
-        setConnectionStatus('connected');
-        toast.success("Successfully connected to Freqtrade");
-        await fetchStatus();
-        return true;
-      } else {
-        setConnectionStatus('disconnected');
-        setError("Unexpected response from server");
-        toast.error("Failed to connect to Freqtrade");
-        return false;
-      }
-    } catch (err: any) {
-      console.error("Connection test error:", err);
-      setConnectionStatus('disconnected');
-      
-      // Provide more specific error message
-      let errorMessage = "Failed to connect to Freqtrade";
-      
-      if (err.message.includes('Failed to fetch')) {
-        const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
-        errorMessage = `Cannot reach Freqtrade server. Make sure it's running at ${apiUrl}`;
-      } else if (err.message.includes('status: 401')) {
-        errorMessage = "Authentication failed. Check your username and password.";
-      } else if (err.message.includes('status: 404')) {
-        errorMessage = "API endpoint not found. Check your Freqtrade version.";
-      } else {
-        errorMessage += ": " + err.message;
-      }
-      
-      setError(errorMessage);
-      toast.error(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchStatus = async () => {
+  const fetchStatus = useCallback(async () => {
     if (connectionStatus !== 'connected') {
       return;
     }
@@ -208,16 +114,112 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       };
       
       setStatus(statusData);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch Freqtrade status");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to fetch Freqtrade status");
       console.error("Error fetching status:", err);
-      if (err.message.includes('Failed to fetch')) {
+      if (err instanceof Error && err.message.includes('Failed to fetch')) {
         setConnectionStatus('disconnected');
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [connectionStatus]);
+
+  const testConnection = useCallback(async () => {
+    try {
+      setConnectionStatus('checking');
+      setLoading(true);
+      setError(null);
+      console.log('Testing Freqtrade connection...');
+      
+      // Use the freqtradeConfig
+      const apiUrl = freqtradeConfig.apiUrl;
+      console.log('Using API URL:', apiUrl);
+      console.log('Username:', freqtradeConfig.username);
+      // Don't log the actual password, just indicate if it's being used
+      console.log('Using password from ENV?', !!process.env.NEXT_PUBLIC_FREQTRADE_PASSWORD);
+      
+      // Generate auth header
+      const authString = `${freqtradeConfig.username}:${freqtradeConfig.password}`;
+      const base64Auth = btoa(authString);
+      console.log('Auth string length:', authString.length);
+      console.log('Base64 auth string:', base64Auth);
+      
+      // Ensure we don't double-append /api/v1
+      const pingUrl = apiUrl.endsWith('/ping') ? apiUrl : 
+                     apiUrl.endsWith('/') ? `${apiUrl}ping` : `${apiUrl}/ping`;
+      console.log('Making request to:', pingUrl);
+      
+      // Use direct fetch for testing connection to the real server
+      const response = await fetch(pingUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + base64Auth,
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        },
+        mode: 'cors',
+        credentials: 'include'
+      });
+      
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`);
+      }
+      
+      // Debug the raw response
+      const rawText = await response.text();
+      console.log('Raw response:', rawText);
+      
+      let data;
+      try {
+        data = JSON.parse(rawText);
+        console.log('Parsed JSON:', data);
+      } catch (parseErr) {
+        console.error('JSON parse error:', parseErr);
+        throw new Error(`Failed to parse JSON response: ${rawText.substring(0, 100)}...`);
+      }
+      
+      if (data && data.status === 'pong') {
+        setConnectionStatus('connected');
+        toast.success("Successfully connected to Freqtrade");
+        await fetchStatus();
+        return true;
+      } else {
+        setConnectionStatus('disconnected');
+        setError("Unexpected response from server");
+        toast.error("Failed to connect to Freqtrade");
+        return false;
+      }
+    } catch (err: unknown) {
+      console.error("Connection test error:", err);
+      setConnectionStatus('disconnected');
+      
+      // Provide more specific error message
+      let errorMessage = "Failed to connect to Freqtrade";
+      
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch')) {
+          const apiUrl = process.env.NEXT_PUBLIC_FREQTRADE_API_URL || 'http://localhost:8080/api/v1';
+          errorMessage = `Cannot reach Freqtrade server. Make sure it's running at ${apiUrl}`;
+        } else if (err.message.includes('status: 401')) {
+          errorMessage = "Authentication failed. Check your username and password.";
+        } else if (err.message.includes('status: 404')) {
+          errorMessage = "API endpoint not found. Check your Freqtrade version.";
+        } else {
+          errorMessage += ": " + err.message;
+        }
+      }
+      
+      setError(errorMessage);
+      toast.error(errorMessage);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchStatus]);
 
   const handleStartBot = async () => {
     try {
@@ -257,8 +259,9 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       toast.success("Bot started successfully");
       
       await fetchStatus();
-    } catch (err: any) {
-      setError("Failed to start the bot: " + (err.message || "Unknown error"));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError("Failed to start the bot: " + errorMessage);
       console.error("Error starting bot:", err);
       toast.error("Failed to start bot");
     } finally {
@@ -304,8 +307,9 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
       toast.success("Bot stopped successfully");
       
       await fetchStatus();
-    } catch (err: any) {
-      setError("Failed to stop the bot: " + (err.message || "Unknown error"));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError("Failed to stop the bot: " + errorMessage);
       console.error("Error stopping bot:", err);
       toast.error("Failed to stop bot");
     } finally {
@@ -327,7 +331,7 @@ export function FreqtradeStatus({ className = "" }: FreqtradeStatusProps) {
     if (connectionStatus === 'connected' && !loading && !status) {
       fetchStatus();
     }
-  }, [connectionStatus, loading, status]);
+  }, [connectionStatus, loading, status, fetchStatus]);
 
   return (
     <CollapsibleWidget 
